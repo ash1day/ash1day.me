@@ -22,7 +22,6 @@ You can find the most recent version of this guide [here](https://github.com/fac
 - [Adding Bootstrap](#adding-bootstrap)
 - [Adding Flow](#adding-flow)
 - [Adding Custom Environment Variables](#adding-custom-environment-variables)
-- [Can I Use Decorators?](#can-i-use-decorators)
 - [Integrating with a Node Backend](#integrating-with-a-node-backend)
 - [Proxying API Requests in Development](#proxying-api-requests-in-development)
 - [Using HTTPS in Development](#using-https-in-development)
@@ -80,13 +79,13 @@ After creation, your project should look like this:
 my-app/
   README.md
   index.html
+  favicon.ico
   node_modules/
   package.json
   src/
     App.css
     App.js
     App.test.js
-    favicon.ico
     index.css
     index.js
     logo.svg
@@ -95,7 +94,7 @@ my-app/
 For the project to build, **these files must exist with exact filenames**:
 
 * `index.html` is the page template;
-* `src/favicon.ico` is the icon you see in the browser tab;
+* `favicon.ico` is the icon you see in the browser tab;
 * `src/index.js` is the JavaScript entry point.
 
 You can delete or rename the other files.
@@ -157,7 +156,7 @@ You would need to install an ESLint plugin for your editor first.
 
 ><img src="http://i.imgur.com/yVNNHJM.png" width="300">
 
-Then add this block to the `package.json` file of your project:
+Then make sure `package.json` of your project ends with this block:
 
 ```js
 {
@@ -167,6 +166,9 @@ Then add this block to the `package.json` file of your project:
   }
 }
 ```
+
+Projects generated with `react-scripts@0.2.0` and higher should already have it.  
+If you don’t need ESLint integration with your editor, you can safely delete those three lines from your `package.json`.
 
 Finally, you will need to install some packages *globally*:
 
@@ -374,16 +376,47 @@ node_modules/fbjs/lib/Deferred.js.flow:60
 node_modules/fbjs/lib/shallowEqual.js.flow:29
  29:     return x !== 0 || 1 / (x: $FlowIssue) === 1 / (y: $FlowIssue);
                                    ^^^^^^^^^^ identifier `$FlowIssue`. Could not resolve name
+
+src/App.js:3
+  3: import logo from './logo.svg';
+                      ^^^^^^^^^^^^ ./logo.svg. Required module not found
+
+src/App.js:4
+  4: import './App.css';
+            ^^^^^^^^^^^ ./App.css. Required module not found
+
+src/index.js:5
+  5: import './index.css';
+            ^^^^^^^^^^^^^ ./index.css. Required module not found
 ```
 
 To fix this, change your `.flowconfig` to look like this:
 
 ```ini
-[ignore]
-<PROJECT_ROOT>/node_modules/fbjs/.*
+[libs]
+./node_modules/fbjs/flow/lib
+
+[options]
+esproposal.class_static_fields=enable
+esproposal.class_instance_fields=enable
+
+module.name_mapper='^\(.*\)\.css$' -> 'react-scripts/config/flow/css'
+module.name_mapper='^\(.*\)\.\(jpg\|png\|gif\|eot\|otf\|webp\|svg\|ttf\|woff\|woff2\|mp4\|webm\)$' -> 'react-scripts/config/flow/file'
+
+suppress_type=$FlowIssue
+suppress_type=$FlowFixMe
 ```
 
 Re-run flow, and you shouldn’t get any extra issues.
+
+If you later `eject`, you’ll need to replace `react-scripts` references with the `<PROJECT_ROOT>` placeholder, for example:
+
+```ini
+module.name_mapper='^\(.*\)\.css$' -> '<PROJECT_ROOT>/config/flow/css'
+module.name_mapper='^\(.*\)\.\(jpg\|png\|gif\|eot\|otf\|webp\|svg\|ttf\|woff\|woff2\|mp4\|webm\)$' -> '<PROJECT_ROOT>/config/flow/file'
+```
+
+We will consider integrating more tightly with Flow in the future so that you don’t have to do this.
 
 ## Adding Custom Environment Variables
 
@@ -454,23 +487,6 @@ if (process.env.NODE_ENV !== 'production') {
   analytics.disable();
 }
 ```
-
-## Can I Use Decorators?
-
-Many popular libraries use [decorators](https://medium.com/google-developers/exploring-es7-decorators-76ecb65fb841) in their documentation.  
-Create React App doesn’t support decorator syntax at the moment because:
-
-* It is an experimental proposal and is subject to change.
-* The current specification version is not officially supported by Babel.
-* If the specification changes, we won’t be able to write a codemod because we don’t use them internally at Facebook.
-
-However in many cases you can rewrite decorator-based code without decorators just as fine.  
-Please refer to these two threads for reference:
-
-* [#214](https://github.com/facebookincubator/create-react-app/issues/214)
-* [#411](https://github.com/facebookincubator/create-react-app/issues/411)
-
-Create React App will add decorator support when the specification advances to a stable stage.
 
 ## Integrating with a Node Backend
 

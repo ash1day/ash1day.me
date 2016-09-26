@@ -1,0 +1,31 @@
+footer {
+  width: 100%;
+  height: 5em;
+
+  padding-bottom: 2em;
+
+  position: absolute;
+  bottom: 0;
+
+  text-align: center;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  margin: 0;
+  padding: 0 1em;
+  display: inline-block;
+}
+
+a {
+  color: #3B9DCE;
+}
+
+a:hover{
+  color: #61E4FF;
+}
